@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id="sale_commission_ept_category" model="ir.module.category">
+        <field name="name">Sale Commission Ept Category</field>
+        <field name="description">This is sale commission ept security group category.</field>
+    </record>
+
+    <record id="group_sale_commission_ept_salesperson" model="res.groups">
+        <field name="name">Sale Commission ept SalePerson Group</field>
+        <field name="category_id" ref="sale_commission_ept_category"/>
+    </record>
+
+    <record id="group_sale_commission_ept_salesmanager" model="res.groups">
+        <field name="name">Sale Commission ept SaleManager Group</field>
+        <field name="category_id" ref="sale_commission_ept_category"/>
+        <field name="implied_ids" eval="[(4,ref('group_sale_commission_ept_salesperson'))]"/>
+        <field name="users" eval="[(4,ref('base.user_root')),(4,ref('base.user_admin'))]"/>
+    </record>
+
+</odoo>

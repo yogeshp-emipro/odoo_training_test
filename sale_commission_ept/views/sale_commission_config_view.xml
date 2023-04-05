@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id='view_sale_commission_config_tree' model='ir.ui.view'>
+
+        <field name='name'>Sale Commission Config Tree View</field>
+        <field name='model'>sale.commission.config</field>
+        <field name='arch' type='xml'>
+            <tree string='Sale Commission config'>
+                <field name='name'/>
+                <field name='commission_calculation_type'/>
+                <field name="commission_calculate_for"/>
+                <field name="commission_percentage"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id='view_sale_commission_config_form' model='ir.ui.view'>
+        <field name='name'>Sale Commission Config Form View</field>
+        <field name='model'>sale.commission.config</field>
+        <field name='arch' type='xml'>
+            <form string='Sale Commission config'>
+                <header></header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name='name'/>
+                            <field name='commission_calculation_type'/>
+                            <field name="commission_calculate_for"/>
+                        </group>
+                        <group>
+                            <field name="commission_percentage"/>
+                            <field name="sale_manager_commission_based_on"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id='view_sale_commission_config_search' model='ir.ui.view'>
+
+        <field name='name'>Sale Commission Config Search View</field>
+        <field name='model'>sale.commission.config</field>
+        <field name='arch' type='xml'>
+            <search string='Sale Commission Config Search'>
+
+                <field name='name'/>
+                <field name='commission_calculation_type'/>
+                <field name="commission_calculate_for"/>
+            </search>
+        </field>
+    </record>
+    <record id="action_sale_commission_config" model="ir.actions.act_window">
+        <field name="name">Sale Commission Config Action</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.commission.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_sale_commission_config_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Creating the New Sale Commission .
+            </p>
+        </field>
+    </record>
+    <menuitem id='sale_commission_config_menu_root'
+              name='Sale Commission'
+    />
+    <menuitem id='sale_commission_config_sub_menu_root'
+              name='Configuration'
+              parent="sale_commission_config_menu_root"
+    />
+
+    <menuitem id='sale_commission_config_sub_sub_menu_root'
+              name='Commission Configuration'
+              parent='sale_commission_config_sub_menu_root'
+              action='action_sale_commission_config'
+    />
+
+</odoo>
