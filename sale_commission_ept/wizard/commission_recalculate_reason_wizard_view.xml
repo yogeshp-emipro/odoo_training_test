@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_commission_recalculate_reason_wizard" model="ir.ui.view">
+        <field name="name">Commission Recalculate Reason Wizard</field>
+        <field name="model">commission.recalculate.reason.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="sales_commission_id" domain="[('id','in', active_ids)]"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Recalculate Commision" name="recalculate_commission" type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_commission_recalculate_reason_wizard" model="ir.actions.act_window">
+        <field name="name">Commission Recalculate Reason</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">commission.recalculate.reason.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_commission_recalculate_reason_wizard"/>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="sale_commission_ept.model_sales_commission_ept"/>
+        <field name="binding_view_types">list,form</field>
+    </record>
+
+</odoo>
