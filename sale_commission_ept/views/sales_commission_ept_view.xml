@@ -78,7 +78,12 @@
             <form string='Sale Commission ept'>
                 <header>
                     <field name="state" widget="statusbar" attrs="{'readonly': True}"/>
-                    <button string="Calculate Commission Lines" name="calculate_commission_line" class="btn-primary" type="object" attrs="{'invisible': [('state','!=', 'draft')]}"/>
+                    <button string="Calculate Commission Lines" name="calculate_commission_line" class="btn-primary"
+                            type="object" attrs="{'invisible': [('state','!=', 'draft')]}"/>
+                    <button string="Re-Calculate Commission Lines"
+                            name="%(action_commission_recalculate_reason_wizard)d" class="btn-primary" type="action"
+                            attrs="{'invisible': ['|',('state','not in', ['approved']),('commission_calculate_for','!=','sales team')]}"/>
+
                 </header>
                 <sheet>
                     <group>
@@ -91,12 +96,14 @@
                         </group>
                         <group>
                             <field name="commission_calculate_for"/>
-                            <field name="user_id" attrs="{'invisible':[('commission_calculate_for','!=','sale person')]}"/>
-                            <field name="team_id" attrs="{'invisible':[('commission_calculate_for','!=','sales team')]}" />
+                            <field name="user_id"
+                                   attrs="{'invisible':[('commission_calculate_for','!=','sale person')]}"/>
+                            <field name="team_id"
+                                   attrs="{'invisible':[('commission_calculate_for','!=','sales team')]}"/>
                             <field name="total_commission"/>
                             <field name="amount_residual"/>
                             <field name="commission_final_paid_date"/>
-<!--                            <field name="sale_order_id"/>-->
+                            <!--                            <field name="sale_order_id"/>-->
                         </group>
                     </group>
                     <notebook>
@@ -110,7 +117,8 @@
                                     <field name="amount"/>
                                     <field name="to_be_paid_commission_amount"/>
                                 </tree>
-                                </field></page>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
             </form>

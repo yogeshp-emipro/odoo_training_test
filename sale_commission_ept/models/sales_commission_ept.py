@@ -7,6 +7,7 @@ import simplejson
 
 class SalesCommissionEpt(models.Model):
     _name = 'sales.commission.ept'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _descripiton = 'Sales Commission Ept'
 
     # name - Char - required
@@ -65,7 +66,7 @@ class SalesCommissionEpt(models.Model):
     # commission_final_paid_date - Date - readonly
     # This will be set from the invoice, when the payments are made need to check if the invoice(bill) if fully paid, that date should be set in this field
     # Make sure partial payment dates are not allowed
-    total_commission = fields.Float(string=' Total Commission',
+    total_commission = fields.Float(string=' Total Commission', compute='_compute_total_commission',
                                     help=' total commission of the sale commission')
     amount_residual = fields.Float(string=' Amount Remaining',
                                    help='amount remaining of the sale commission')
@@ -148,6 +149,14 @@ class SalesCommissionEpt(models.Model):
         self.update({'sale_commission_config_id': self.sale_commission_config_id.id,
                      'to_date': self.to_date,
                      'commission_lines_ids': commission_lines})
-    
+
+    @api.depends()
+    def _compute_total_commission(self):
+        total_commission = 0
+        for commission in self:
+            for comm in commission.commission_lines_ids:
+                total_commission += comm.to_be_paid_commission_amount
+            commission.total_commission = total_commission
 
         # this line come outside every condition for confirmed ordes,confirmed invoices,paid invoices
+

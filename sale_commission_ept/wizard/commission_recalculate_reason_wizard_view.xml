@@ -16,7 +16,7 @@
                     </group>
                 </sheet>
                 <footer>
-                    <button string="Recalculate Commision" name="recalculate_commission" type="object"
+                    <button string="Recalculate Commision" name="re_calculate_commission_line" type="object"
                             class="btn-primary"/>
                     <button string="Cancel" special="cancel" class="btn-primary"/>
                 </footer>
