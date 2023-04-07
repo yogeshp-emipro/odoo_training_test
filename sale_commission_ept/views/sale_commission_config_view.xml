@@ -11,6 +11,7 @@
                 <field name='commission_calculation_type'/>
                 <field name="commission_calculate_for"/>
                 <field name="commission_percentage"/>
+                <field name="sale_manager_commission_based_on"/>
             </tree>
         </field>
     </record>

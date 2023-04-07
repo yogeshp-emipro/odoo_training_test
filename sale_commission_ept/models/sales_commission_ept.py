@@ -1,5 +1,8 @@
 from odoo import models, fields, api, Command
 from odoo.exceptions import ValidationError
+from lxml import etree
+import json
+import simplejson
 
 
 class SalesCommissionEpt(models.Model):
@@ -75,33 +78,49 @@ class SalesCommissionEpt(models.Model):
                 self.total_commission and self.total_commission < 1):
             raise ValidationError('Warning ! Commission Percentage cannot be negative and in range of 100')
 
+    # def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+    #     context = self._context
+    #     res = super(SalesCommissionEpt, self).fields_view_get(view_id=None, view_type='form', toolbar=False, submenu=False)
+    # #
+    #     if context.get('turn_view_readonly'):
+    #         doc = etree.XML(res['arch'])
+    #         if view_type == 'form':
+    #             for node in doc.xpath("//field"):
+    #                 node.set("readonly", '1')
+    #                 node_values = node.get('modifiers')
+    #                 modifiers = json.Loads(node_values)
+    #                 modifiers["readonly"] = True
+    #                 node.set("modifiers", simplejson.dumps())
+    #             res['arch'] = etree.tostring(doc)
+    #     return res
+
     @api.onchange('sale_commission_config_id')
     def onchange_sale_commission_config(self):
         self.commission_percentage = self.sale_commission_config_id.commission_percentage
+        self.commission_calculate_for = self.sale_commission_config_id.commission_calculate_for
 
     def calculate_commission_line(self):
         commission_lines = []
-        # self.state = 'approved'
         if self.sale_commission_config_id.commission_calculation_type == 'confirmed orders':
             if self.commission_calculate_for == 'sale person':
-                for order in self.env['sale.order'].search([('user_id', '=', self.user_id.id)]):
-                    commission_lines.append(Command.create({'transaction_date': order.date_order,
-                                                            'user_id': order.user_id.id,
-                                                            'partner_id': order.partner_id.id,
-                                                            'source_document': order.partner_id.name,
-                                                            'amount': order.amount_total}))
+                sale_orders = self.env['sale.order'].search([('user_id', '=', self.user_id.id)])
             else:
                 if self.sale_commission_config_id.sale_manager_commission_based_on == 'individual sales':
-                    for order in self.env['sale.order'].search([('user_id', '=', self.team_id.id)]):
+                    sale_orders = self.env['sale.order'].search([('user_id', '=', self.team_id.alias_user_id.id)])
+
+                else:
+                    sale_orders = self.env['sale.order'].search([('user_id', 'in', self.team_id.member_ids.ids)])
+
+            for order in sale_orders:
                         commission_lines.append(Command.create({'transaction_date': order.date_order,
-                                                                'user_id': order.team_id.id,
+                                                                'user_id': order.user_id.id,
                                                                 'partner_id': order.partner_id.id,
                                                                 'source_document': order.partner_id.name,
                                                                 'amount': order.amount_total}))
-                        #Debugg this part we id to searched in sale.order for finding the order with that user.
-                else:
-                    pass
-        self.write({'sale_commission_config_id': self.sale_commission_config_id.id,
+            self.commission_lines_ids.unlink()
+        self.update({'sale_commission_config_id': self.sale_commission_config_id.id,
                     'to_date': self.to_date,
                     'commission_lines_ids': commission_lines})
+        # self.state = 'approved'
+
         # this line come outside every condition for confirmed ordes,confirmed invoices,paid invoices
