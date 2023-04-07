@@ -102,25 +102,52 @@ class SalesCommissionEpt(models.Model):
     def calculate_commission_line(self):
         commission_lines = []
         if self.sale_commission_config_id.commission_calculation_type == 'confirmed orders':
+
             if self.commission_calculate_for == 'sale person':
                 sale_orders = self.env['sale.order'].search([('user_id', '=', self.user_id.id)])
             else:
                 if self.sale_commission_config_id.sale_manager_commission_based_on == 'individual sales':
                     sale_orders = self.env['sale.order'].search([('user_id', '=', self.team_id.alias_user_id.id)])
-
                 else:
                     sale_orders = self.env['sale.order'].search([('user_id', 'in', self.team_id.member_ids.ids)])
+            self.state = 'approved'
 
-            for order in sale_orders:
-                        commission_lines.append(Command.create({'transaction_date': order.date_order,
-                                                                'user_id': order.user_id.id,
-                                                                'partner_id': order.partner_id.id,
-                                                                'source_document': order.partner_id.name,
-                                                                'amount': order.amount_total}))
-            self.commission_lines_ids.unlink()
+        elif self.sale_commission_config_id.commission_calculation_type == 'confirmed invoices':
+
+            if self.commission_calculate_for == 'sale person':
+                sale_orders = self.env['sale.order'].search(
+                    [('user_id', '=', self.user_id.id), ('invoice_ids.payment_state', '=', 'not_paid')])
+            else:
+                if self.sale_commission_config_id.sale_manager_commission_based_on == 'individual sales':
+                    sale_orders = self.env['sale.order'].search([('user_id', '=', self.team_id.alias_user_id.id),
+                                                                 ('invoice_ids.payment_state', '=', 'not_paid')])
+                else:
+                    sale_orders = self.env['sale.order'].search([('user_id', 'in', self.team_id.member_ids.ids),
+                                                                 ('invoice_ids.payment_state', '=', 'not_paid')])
+            self.state = 'in-payment'
+        else:
+            if self.commission_calculate_for == 'sale person':
+                sale_orders = self.env['sale.order'].search(
+                    [('user_id', '=', self.user_id.id), ('invoice_ids.payment_state', '=', 'paid')])
+            else:
+                if self.sale_commission_config_id.sale_manager_commission_based_on == 'individual sales':
+                    sale_orders = self.env['sale.order'].search([('user_id', '=', self.team_id.alias_user_id.id),
+                                                                 ('invoice_ids.payment_state', '=', 'paid')])
+                else:
+                    sale_orders = self.env['sale.order'].search([('user_id', 'in', self.team_id.member_ids.ids),
+                                                                 ('invoice_ids.payment_state', '=', 'paid')])
+            self.state = 'paid'
+
+        for order in sale_orders:
+            commission_lines.append(Command.create({'transaction_date': order.date_order,
+                                                    'user_id': order.user_id.id,
+                                                    'partner_id': order.partner_id.id,
+                                                    'source_document': order.partner_id.name,
+                                                    'amount': order.amount_total}))
+        self.commission_lines_ids.unlink()
         self.update({'sale_commission_config_id': self.sale_commission_config_id.id,
-                    'to_date': self.to_date,
-                    'commission_lines_ids': commission_lines})
-        # self.state = 'approved'
+                     'to_date': self.to_date,
+                     'commission_lines_ids': commission_lines})
+    
 
         # this line come outside every condition for confirmed ordes,confirmed invoices,paid invoices
