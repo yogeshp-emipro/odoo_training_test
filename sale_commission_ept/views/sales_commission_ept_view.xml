@@ -80,11 +80,19 @@
                     <field name="state" widget="statusbar" attrs="{'readonly': True}"/>
                     <button string="Calculate Commission Lines" name="calculate_commission_line" class="btn-primary"
                             type="object" attrs="{'invisible': [('state','!=', 'draft')]}"/>
+
                     <button string="Re-Calculate Commission Lines"
                             name="%(action_commission_recalculate_reason_wizard)d" class="btn-primary" type="action"
+                            groups="sale_commission_ept.group_sale_commission_ept_salesmanager"
                             attrs="{'invisible': ['|',('state','not in', ['approved']),('commission_calculate_for','!=','sales team')]}"/>
 
+                    <button string="Generate Bill" name="generate_bill" class="btn-primary"
+                            type="object" attrs="{'invisible': [('state','!=', 'approved')]}"/>
+
+                    <button string="Cancel Commission" name="cancel_commission" class="btn-primary"
+                            type="object" attrs="{'invisible': [('state','not in', ['draft','approved'])]}"/>
                 </header>
+                Cancel
                 <sheet>
                     <group>
                         <group>

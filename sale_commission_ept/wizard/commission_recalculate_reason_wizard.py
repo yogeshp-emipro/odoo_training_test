@@ -15,6 +15,4 @@ class CommissionRecalculateReasonWizard(models.TransientModel):
         self.sales_commission_id.commission_lines_ids.unlink()
         self.sales_commission_id.calculate_commission_line()
         message = "****Hi Greeting %s for Day . %s ****" % (self.create_uid.name,self.name)
-        # self.message_post(body=message)
-
-        # facing the erro the method is not available for the transient model.
+        self.sales_commission_id.message_post(body=message)

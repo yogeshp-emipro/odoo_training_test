@@ -1,5 +1,5 @@
 from odoo import models, fields, api, Command
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError,UserError
 from lxml import etree
 import json
 import simplejson
@@ -73,6 +73,8 @@ class SalesCommissionEpt(models.Model):
     commission_final_paid_date = fields.Datetime(string='Commission Paid Date', readonly=True,
                                                  help="paid date of the sale commission.")
 
+    # user_group
+
     @api.constrains('commission_percentage', 'total_commission')
     def check_commission(self):
         if (self.commission_percentage and self.commission_percentage < 1 or self.commission_percentage > 100) or (
@@ -104,7 +106,7 @@ class SalesCommissionEpt(models.Model):
         commission_lines = []
         if self.sale_commission_config_id.commission_calculation_type == 'confirmed orders':
 
-            if self.commission_calculate_for == 'sale person':
+            if self.commission_calculate_for == 'sale person'and self.user_id:
                 sale_orders = self.env['sale.order'].search([('user_id', '=', self.user_id.id)])
             else:
                 if self.sale_commission_config_id.sale_manager_commission_based_on == 'individual sales':
@@ -115,7 +117,7 @@ class SalesCommissionEpt(models.Model):
 
         elif self.sale_commission_config_id.commission_calculation_type == 'confirmed invoices':
 
-            if self.commission_calculate_for == 'sale person':
+            if self.commission_calculate_for == 'sale person'and self.user_id:
                 sale_orders = self.env['sale.order'].search(
                     [('user_id', '=', self.user_id.id), ('invoice_ids.payment_state', '=', 'not_paid')])
             else:
@@ -127,7 +129,7 @@ class SalesCommissionEpt(models.Model):
                                                                  ('invoice_ids.payment_state', '=', 'not_paid')])
             self.state = 'in-payment'
         else:
-            if self.commission_calculate_for == 'sale person':
+            if self.commission_calculate_for == 'sale person' and self.user_id:
                 sale_orders = self.env['sale.order'].search(
                     [('user_id', '=', self.user_id.id), ('invoice_ids.payment_state', '=', 'paid')])
             else:
@@ -149,14 +151,73 @@ class SalesCommissionEpt(models.Model):
         self.update({'sale_commission_config_id': self.sale_commission_config_id.id,
                      'to_date': self.to_date,
                      'commission_lines_ids': commission_lines})
+        #this line come outside every condition for confirmed ordes,confirmed invoices,paid invoices
 
     @api.depends()
     def _compute_total_commission(self):
-        total_commission = 0
+
         for commission in self:
+            total_commission = 0
             for comm in commission.commission_lines_ids:
                 total_commission += comm.to_be_paid_commission_amount
             commission.total_commission = total_commission
+################################################################################################################################
+    def generate_bill(self):
+        if self.commission_calculate_for=='sale person' and self.user_id:
+          [order._create_invoices() for order in   self.env['sale.order'].search([('user_id', '=', self.user_id.id)])]
+          # self.env['sale.order'].search([('user_id', '=', self.user_id.id)],limit=1)._create_invoices()
+        else:
+            pass
+    def _prepare_invoice(self):
+        """
+        Prepare the dict of values to create the new invoice for a sales order. This method may be
+        overridden to implement custom invoice generation (making sure to call super() to establish
+        a clean extension chain).
+        """
+        self.ensure_one()
+        journal = self.env['account.move'].with_context(default_move_type='out_invoice')._get_default_journal()
+        if not journal:
+            raise UserError(('Please define an accounting sales journal for the company %s (%s).', self.company_id.name, self.company_id.id))
 
-        # this line come outside every condition for confirmed ordes,confirmed invoices,paid invoices
+        invoice_vals = {
+            'ref': self.client_order_ref or '',
+            'move_type': 'out_invoice',
+            'narration': self.note,
+            'currency_id': self.pricelist_id.currency_id.id,
+            'campaign_id': self.campaign_id.id,
+            'medium_id': self.medium_id.id,
+            'source_id': self.source_id.id,
+            'user_id': self.user_id.id,
+            'invoice_user_id': self.user_id.id,
+            'team_id': self.team_id.id,
+            'partner_id': self.partner_invoice_id.id,
+            'partner_shipping_id': self.partner_shipping_id.id,
+            'fiscal_position_id': (self.fiscal_position_id or self.fiscal_position_id.get_fiscal_position(self.partner_invoice_id.id)).id,
+            'partner_bank_id': self.company_id.partner_id.bank_ids.filtered(lambda bank: bank.company_id.id in (self.company_id.id, False))[:1].id,
+            'journal_id': journal.id,  # company comes from the journal
+            'invoice_origin': self.name,
+            'invoice_payment_term_id': self.payment_term_id.id,
+            'payment_reference': self.reference,
+            'transaction_ids': [(6, 0, self.transaction_ids.ids)],
+            'invoice_line_ids': [],
+            'company_id': self.company_id.id,
+        }
+        return invoice_vals
 
+    def _get_invoiceable_lines(self, final=False):
+         res=super()._get_invoiceable_lines(final)
+
+         return res
+
+    def _prepare_invoice_line(self, **optional_values):
+
+        res = super(SalesCommissionEpt, self)._prepare_invoice_line(**optional_values)
+
+        return res
+###################################################################################################################
+    def cancel_commission(self):
+        if self.state  in ['draft','approved']:
+             self.state='cancelled'
+
+        # This button will change the state to “Cancel”
+        # Once the record is cancelled, then the fields on the screen should be readonly and cannot be changed

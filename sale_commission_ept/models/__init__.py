@@ -1,4 +1,4 @@
 from . import sale_commission_config
 from . import sales_commission_ept
 from . import sales_commission_line_ept
-from . import product_extd
+from . import res_config_settings
