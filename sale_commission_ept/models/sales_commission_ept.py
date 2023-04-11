@@ -1,5 +1,5 @@
 from odoo import models, fields, api, Command
-from odoo.exceptions import ValidationError,UserError
+from odoo.exceptions import ValidationError, UserError
 from lxml import etree
 import json
 import simplejson
@@ -10,18 +10,6 @@ class SalesCommissionEpt(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _descripiton = 'Sales Commission Ept'
 
-    # name - Char - required
-    # Example - March - April - 2023 Commission
-    # sales_commission_config_id - M2O - sale.commission.config - required
-    # Based on the configuration, sales calculation will be calculated
-    # commission_calculate_for - selection[Salesperson, Sales Team] - compute - store - False - readonly - Label - Calculate Commission For
-    # user_id - M2O - res.users
-    # It can either be the salesperson or a sales manager
-    # This field will be only visible if the commission_calculate_for is set as ‘Salesperson’, otherwise not
-    # It will be only required, if commission_calculate_for is set as ‘Salesperson’ else not
-    # team_id - M2O - crm.team
-    # This field will only be visible if the commission_calculate_for is set as ‘Sales Team’, otherwise not
-    # It will be only required, if commission_calculate_for is set as ‘Sales Team’ else not
     # from_date - Date - required
     # to_date - Date - required
     # Must be greater than the from_date at least 2 weeks
@@ -35,6 +23,7 @@ class SalesCommissionEpt(models.Model):
     commission_calculate_for = fields.Selection(string='Commission Calculate For',
                                                 selection=[('sale person', 'Sale Person'),
                                                            ('sales team', 'Sales Team')],
+
                                                 help='commission calculate for sale commission')
     user_id = fields.Many2one(comodel_name='res.users', string='User', help='User  of the Sale Commission ')
     team_id = fields.Many2one(comodel_name='crm.team', string='Team', help='Team  of the Sale Commission ')
@@ -51,29 +40,18 @@ class SalesCommissionEpt(models.Model):
                                         ('cancelled', 'Cancelled')], required=True,
                              help='state of the sale commission', default='draft')  # non clickable
     commission_lines_ids = fields.One2many(comodel_name='sales.commission.line.ept', inverse_name='sale_commission_id',
-                                           string='Sale Commission Line ',
+                                           string='Sale Commission Line ', ondelete='cascade',
                                            help='sale commission line of sale commission ept')
-    # sale_order_id=fields.Many2one(comodel_name='sale.order',string='Sale Order',help='sale order id of the sale commission ept')
-
-    # commission_lines_ids - O2M - sales.commission.line.ept - inverse name -  sale_commission_id
-    # In-line tree view
-    # total_commission - Float - 2 decimals - compute - store True
-    # Must be non-negative
-    # Based on the value of ‘to_be_paid_commission_amount’ in sales commission lines
-    # amount_residual - Float - 2 decimals - compute - store False
-    # This will be calculated based on the invoice(purchase/vendor bill) generated for commission and the amount paid amount of that invoice
-    # Need to show how much amount is still remaining to be paid by deducting whatever is paid amount in the invoice
-    # commission_final_paid_date - Date - readonly
-    # This will be set from the invoice, when the payments are made need to check if the invoice(bill) if fully paid, that date should be set in this field
-    # Make sure partial payment dates are not allowed
     total_commission = fields.Float(string=' Total Commission', compute='_compute_total_commission',
                                     help=' total commission of the sale commission')
     amount_residual = fields.Float(string=' Amount Remaining',
                                    help='amount remaining of the sale commission')
     commission_final_paid_date = fields.Datetime(string='Commission Paid Date', readonly=True,
-                                                 help="paid date of the sale commission.")
+                                                 default=fields.Datetime.now, help="paid date of the sale commission.")
+    invoice_count = fields.Float(string='Invoices', compute='_compute_invoice_count')
 
-    # user_group
+    invoice_ids = fields.One2many(comodel_name='account.move',inverse_name='commission_id', string='Commission Invoices',
+                                  help='invoice ids of the commissions')
 
     @api.constrains('commission_percentage', 'total_commission')
     def check_commission(self):
@@ -106,18 +84,20 @@ class SalesCommissionEpt(models.Model):
         commission_lines = []
         if self.sale_commission_config_id.commission_calculation_type == 'confirmed orders':
 
-            if self.commission_calculate_for == 'sale person'and self.user_id:
+            if self.commission_calculate_for == 'sale person' and self.user_id:
                 sale_orders = self.env['sale.order'].search([('user_id', '=', self.user_id.id)])
             else:
                 if self.sale_commission_config_id.sale_manager_commission_based_on == 'individual sales':
                     sale_orders = self.env['sale.order'].search([('user_id', '=', self.team_id.alias_user_id.id)])
                 else:
                     sale_orders = self.env['sale.order'].search([('user_id', 'in', self.team_id.member_ids.ids)])
+
+            old_state, new_state = self.state, 'approved'
             self.state = 'approved'
 
         elif self.sale_commission_config_id.commission_calculation_type == 'confirmed invoices':
 
-            if self.commission_calculate_for == 'sale person'and self.user_id:
+            if self.commission_calculate_for == 'sale person' and self.user_id:
                 sale_orders = self.env['sale.order'].search(
                     [('user_id', '=', self.user_id.id), ('invoice_ids.payment_state', '=', 'not_paid')])
             else:
@@ -127,7 +107,9 @@ class SalesCommissionEpt(models.Model):
                 else:
                     sale_orders = self.env['sale.order'].search([('user_id', 'in', self.team_id.member_ids.ids),
                                                                  ('invoice_ids.payment_state', '=', 'not_paid')])
-            self.state = 'in-payment'
+            old_state = self.state
+            new_state = self.state = 'in-payment'
+
         else:
             if self.commission_calculate_for == 'sale person' and self.user_id:
                 sale_orders = self.env['sale.order'].search(
@@ -139,7 +121,8 @@ class SalesCommissionEpt(models.Model):
                 else:
                     sale_orders = self.env['sale.order'].search([('user_id', 'in', self.team_id.member_ids.ids),
                                                                  ('invoice_ids.payment_state', '=', 'paid')])
-            self.state = 'paid'
+            old_state = self.state
+            new_state = self.state = 'paid'
 
         for order in sale_orders:
             commission_lines.append(Command.create({'transaction_date': order.date_order,
@@ -151,7 +134,19 @@ class SalesCommissionEpt(models.Model):
         self.update({'sale_commission_config_id': self.sale_commission_config_id.id,
                      'to_date': self.to_date,
                      'commission_lines_ids': commission_lines})
-        #this line come outside every condition for confirmed ordes,confirmed invoices,paid invoices
+
+        message = 'Status: %s --> %s' % (old_state, new_state)
+        self.message_post(body=message)
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'sales.commission.ept',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'context': {'form_view_ref': 'sales.commission.ept_form_readonly'},
+            'target': 'main',
+        }
 
     @api.depends()
     def _compute_total_commission(self):
@@ -161,63 +156,64 @@ class SalesCommissionEpt(models.Model):
             for comm in commission.commission_lines_ids:
                 total_commission += comm.to_be_paid_commission_amount
             commission.total_commission = total_commission
-################################################################################################################################
+
     def generate_bill(self):
-        if self.commission_calculate_for=='sale person' and self.user_id:
-          [order._create_invoices() for order in   self.env['sale.order'].search([('user_id', '=', self.user_id.id)])]
-          # self.env['sale.order'].search([('user_id', '=', self.user_id.id)],limit=1)._create_invoices()
-        else:
-            pass
-    def _prepare_invoice(self):
-        """
-        Prepare the dict of values to create the new invoice for a sales order. This method may be
-        overridden to implement custom invoice generation (making sure to call super() to establish
-        a clean extension chain).
-        """
-        self.ensure_one()
-        journal = self.env['account.move'].with_context(default_move_type='out_invoice')._get_default_journal()
-        if not journal:
-            raise UserError(('Please define an accounting sales journal for the company %s (%s).', self.company_id.name, self.company_id.id))
-
-        invoice_vals = {
-            'ref': self.client_order_ref or '',
-            'move_type': 'out_invoice',
-            'narration': self.note,
-            'currency_id': self.pricelist_id.currency_id.id,
-            'campaign_id': self.campaign_id.id,
-            'medium_id': self.medium_id.id,
-            'source_id': self.source_id.id,
-            'user_id': self.user_id.id,
-            'invoice_user_id': self.user_id.id,
-            'team_id': self.team_id.id,
-            'partner_id': self.partner_invoice_id.id,
-            'partner_shipping_id': self.partner_shipping_id.id,
-            'fiscal_position_id': (self.fiscal_position_id or self.fiscal_position_id.get_fiscal_position(self.partner_invoice_id.id)).id,
-            'partner_bank_id': self.company_id.partner_id.bank_ids.filtered(lambda bank: bank.company_id.id in (self.company_id.id, False))[:1].id,
-            'journal_id': journal.id,  # company comes from the journal
-            'invoice_origin': self.name,
-            'invoice_payment_term_id': self.payment_term_id.id,
-            'payment_reference': self.reference,
-            'transaction_ids': [(6, 0, self.transaction_ids.ids)],
-            'invoice_line_ids': [],
-            'company_id': self.company_id.id,
+        invoice_lines = []
+        product = self.env['product.product'].browse(
+            int(self.env['ir.config_parameter'].get_param('sale_commission_ept.product_ept_id')))
+        res = {
+            'display_type': 'line_section',
+            'product_id': product.id,
+            'quantity': 1,
+            'price_unit': product.price,
+            'price_subtotal': self.total_commission
         }
-        return invoice_vals
+        invoice_lines.append(Command.create(res))
+        vals = {
+            'partner_id': self.user_id.id if self.commission_calculate_for == 'sale person' and self.user_id else self.team_id.alias_user_id.id,
+            'commission_id': self.id,
+        }
+        bill = self.env['account.move'].create(vals)
+        res.setdefault('move_id', bill.id)
+        print(res)
+        bill.write({'invoice_line_ids': invoice_lines})
+        print(bill.invoice_line_ids)
 
-    def _get_invoiceable_lines(self, final=False):
-         res=super()._get_invoiceable_lines(final)
+        # old_state = self.state
+        # self.state = 'in-payment'
+        # message = 'Status: %s --> %s' % (old_state, self.state)
+        # self.message_post(body=message)
 
-         return res
-
-    def _prepare_invoice_line(self, **optional_values):
-
-        res = super(SalesCommissionEpt, self)._prepare_invoice_line(**optional_values)
-
-        return res
-###################################################################################################################
     def cancel_commission(self):
-        if self.state  in ['draft','approved']:
-             self.state='cancelled'
+        if self.state in ['draft', 'approved']:
+            self.state = 'cancelled'
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'sales.commission.ept',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'context': {'form_view_ref': 'sales.commission.ept_form_readonly'},
+            'target': 'main',
+        }
 
-        # This button will change the state to “Cancel”
-        # Once the record is cancelled, then the fields on the screen should be readonly and cannot be changed
+    def unlink(self):
+        if self.state in ['approved', 'in-payment', 'paid']:
+            raise ValidationError('Warning ! Commission cannot be deleted.')
+        self.commission_lines_ids.unlink()
+        return super(SalesCommissionEpt, self).unlink()
+
+    def _compute_invoice_count(self):
+        for commission in self:
+            commission.invoice_count =len(commission.invoice_ids)
+
+    def action_open_invoices(self):
+         action = self.env['ir.actions.act_window']._for_xml_id('account.action_move_in_invoice_type')
+         if len(self.invoice_ids) > 1:
+                action['domain'] = [('id', 'in', self.invoice_ids.ids)]
+
+         else:
+                form_view = [(self.env.ref('purchase.purchase_order_form').id, 'form')]
+                action['views'] = form_view
+                action['res_id'] = self.invoice_ids.id
+         return action

@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_sale_commission_config_salesperson,Sale Commission config  SalesPerson,model_sale_commission_config,group_sale_commission_ept_salesperson,1,1,1,0
+access_sale_commission_config_salesperson,Sale Commission config  SalesPerson,model_sale_commission_config,group_sale_commission_ept_salesperson,1,0,0,0
 access_sale_commission_config_salesmanager,Sale Commission config  SalesManager,model_sale_commission_config,group_sale_commission_ept_salesmanager,1,1,1,1
 access_sale_commission_ept_salesperson,Sale Commission ept  SalesPerson,model_sales_commission_ept,group_sale_commission_ept_salesperson,1,1,1,0
 access_sale_commission_ept_salesmanager,Sale Commission ept  SalesManager,model_sales_commission_ept,group_sale_commission_ept_salesmanager,1,1,1,1
