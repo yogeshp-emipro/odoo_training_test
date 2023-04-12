@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id="product_sale_transaction_ept_category" model="ir.module.category">
+        <field name="name">Product Sale Transaction Ept Category</field>
+        <field name="description">This is product sale transaction ept security group category.</field>
+    </record>
+
+    <record id="group_product_sale_transaction_ept_salesperson" model="res.groups">
+        <field name="name">Product Sale Transaction Ept SalePerson Group</field>
+        <field name="category_id" ref="product_sale_transaction_ept_category"/>
+    </record>
+
+    <record id="group_product_sale_transaction_salesmanager" model="res.groups">
+        <field name="name">Product Sale Transaction Ept SaleManager Group</field>
+        <field name="category_id" ref="product_sale_transaction_ept_category"/>
+        <field name="implied_ids" eval="[(4,ref('group_product_sale_transaction_ept_salesperson'))]"/>
+        <field name="users" eval="[(4,ref('base.user_root')),(4,ref('base.user_admin'))]"/>
+    </record>
+
+<!--    <record model="ir.rule" id="sales_commission_ept_sale_person">-->
+<!--        <field name="name">Sale Commission Ept SalePerson</field>-->
+<!--        <field name="model_id" ref="model_sales_commission_ept"/>-->
+<!--        <field name="domain_force">[('user_id.id','=',user.id)]</field>-->
+<!--        <field name="groups" eval="[(4,ref('group_sale_commission_ept_salesperson'))]"/>-->
+
+<!--    </record>-->
+
+<!--    <record model="ir.rule" id="sales_commission_ept_sale_manager">-->
+<!--        <field name="name">Sale Commission Ept SaleManager</field>-->
+<!--        <field name="model_id" ref="model_sales_commission_ept"/>-->
+<!--        <field name="domain_force">[(1,'=',1)]</field>-->
+<!--        <field name="groups" eval="[(4,ref('group_sale_commission_ept_salesmanager'))]"/>-->
+<!--    </record>-->
+
+</odoo>

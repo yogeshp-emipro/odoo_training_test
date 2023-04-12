@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id="view_field_visit_ept_tree" model="ir.ui.view">
+        <field name='name'>Field Visit Tree View</field>
+        <field name='model'>field.visit.ept</field>
+        <field name='arch' type='xml'>
+            <tree string='Product Uom Ept'>
+                <field name='name'/>
+                <field name='user_id'/>
+                <field name='partner_id'/>
+                <field name='visit_date'/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_field_visit_ept_form" model="ir.ui.view">
+        <field name='name'>Field Visit Ept Form View</field>
+        <field name='model'>field.visit.ept</field>
+        <field name='arch' type='xml'>
+            <form string='Field Visit Ept'>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name='name'/>
+                            <field name='user_id'/>
+                            <field name='partner_id'/>
+                        </group>
+                        <group>
+                            <field name='visit_date'/>
+                            <field name="state"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Field Visit">
+                            <field name="field_visit_line_ids">
+                                <tree>
+                                    <field name="product_id"/>
+                                    <field name="uom_id"/>
+                                    <field name="qty"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Visit Log">
+                            <field name="visit_log"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_field_visit_ept_search" model="ir.ui.view">
+        <field name='name'>Field Visit Ept Search View</field>
+        <field name='model'>field.visit.ept</field>
+        <field name='arch' type='xml'>
+            <search string='Field Visit Ept'>
+                <field name='name'/>
+                <field name='user_id'/>
+                <field name='partner_id'/>
+                <field name='visit_date'/>
+                <field name="state"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_field_visit_ept" model="ir.actions.act_window">
+        <field name="name">Field Visit Ept Action</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">field.visit.ept</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_field_visit_ept_search"/>
+        <field name="help" type="html">
+            <div>
+                <p>
+                    Creating New Field Visit Ept.
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <menuitem id="field_visit_ept_menu"
+              name="Field Visit Ept"
+              action="action_field_visit_ept"
+              parent="product_uom_ept_sub_menu3"/>
+</odoo>

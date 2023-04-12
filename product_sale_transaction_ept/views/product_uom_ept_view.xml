@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <record id="view_product_uom_ept_tree" model="ir.ui.view">
+        <field name='name'>Product Uom Ept Tree View</field>
+        <field name='model'>product.uom.ept</field>
+        <field name='arch' type='xml'>
+            <tree string='Product Uom Ept'>
+                <field name='name'/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_product_uom_ept_form" model="ir.ui.view">
+        <field name='name'>Product Uom Ept Form View</field>
+        <field name='model'>product.uom.ept</field>
+        <field name='arch' type='xml'>
+            <form string='Product Uom Ept'>
+                <sheet>
+                    <group>
+                        <field name='name'/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_product_uom_ept_search" model="ir.ui.view">
+        <field name='name'>Product Uom Ept Search View</field>
+        <field name='model'>product.uom.ept</field>
+        <field name='arch' type='xml'>
+            <search string='Product Uom Ept'>
+                <field name='name'/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_product_uom_ept" model="ir.actions.act_window">
+        <field name="name">Product Uom Ept Action</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.uom.ept</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_product_uom_ept_search"/>
+        <field name="help" type="html">
+            <div>
+                <p>
+                    Creating New Product Uom.
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <menuitem id="product_uom_ept_topmenu"
+              name="Product Sale Transaction Ept"
+    />
+
+    <menuitem id="product_uom_ept_sub_menu"
+              name="Sale Transaction"
+              parent="product_uom_ept_topmenu"/>
+
+    <menuitem id="product_uom_ept_sub_menu2"
+              name="Transaction Ept"
+              parent="product_uom_ept_topmenu"/>
+
+    <menuitem id="product_uom_ept_sub_menu3"
+              name="Field Ept"
+              parent="product_uom_ept_topmenu"/>
+
+    <menuitem id="product_uom_ept_menu"
+              name="Proudct Uom"
+              action="action_product_uom_ept"
+              parent="product_uom_ept_sub_menu"/>
+</odoo>

@@ -24,7 +24,6 @@ class SalesCommissionEpt(models.Model):
     commission_calculate_for = fields.Selection(string='Commission Calculate For',
                                                 selection=[('sale person', 'Sale Person'),
                                                            ('sales team', 'Sales Team')],
-
                                                 help='commission calculate for sale commission')
     user_id = fields.Many2one(comodel_name='res.users', string='User', help='User  of the Sale Commission ')
     team_id = fields.Many2one(comodel_name='crm.team', string='Team', help='Team  of the Sale Commission ')
@@ -59,7 +58,6 @@ class SalesCommissionEpt(models.Model):
     def check_commission(self):
         if (self.commission_percentage and self.commission_percentage < 1 or self.commission_percentage > 100) or (
                 self.total_commission and self.total_commission < 1):
-            print(fields.Date.today())
             raise ValidationError('Warning ! Commission Percentage cannot be negative and in range of 100')
 
     @api.constrains('to_date')
