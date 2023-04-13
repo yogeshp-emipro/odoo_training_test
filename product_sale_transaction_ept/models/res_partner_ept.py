@@ -11,17 +11,18 @@ class ResPartnerEPT(models.Model):
     next_visit_date = fields.Date(string='Next Visit Date', help=' Next Visit Date of the partner')
     followup_days = fields.Integer(string='FollowUp Days', help='FollowUp day  of the partner')
     field_visit_count=fields.Integer(string='Visit Count', help='Visit count day of the partner')
-
+    field_visit_ids=fields.One2many(comodel_name='field.visit.ept',inverse_name='partner_id'  ,string='Field Visit Line Ids',
+                                           help='field visit line ids of res partner ept')
     @api.constrains('followup_days')
     def check_commission(self):
         if (self.followup_days < 0):
             raise ValidationError('Warning ! FollowUp Days  must me Greater than Zero')
-
-    # name - char - required
-    # ● next_visit_date - Date
-    # ● followup_days - integer - must be greater than zero, otherwise don’t allow to
-    # create or update the data
-    # ● field_visit_count - integer - It should show the total count of field.visit.ept
-    # for this customer. Add a button box when clicked on it, should show the list
-    # view field.visit.ept for this customer and also form view should be able to
-    # open from it.
+    def action_open_field_visit(self):
+        action = self.env['ir.actions.act_window']._for_xml_id('product_sale_transaction_ept.action_field_visit_ept')
+        if len(self.field_visit_ids) > 1:
+            action['domain'] = [('id', 'in', self.field_visit_ids.ids)]
+        else:
+            form_view = [(self.env.ref('product_sale_transaction_ept.view_field_visit_ept_form').id, 'form')]
+            action['views'] = form_view
+            action['res_id'] = self.field_visit_ids.id
+        return action

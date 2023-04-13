@@ -1,6 +1,5 @@
 from odoo import models,fields
 
-
 class ProductUomEpt(models.Model):
     _name='product.uom.ept'
     _description='Product Uom Ept'

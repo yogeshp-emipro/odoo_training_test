@@ -18,10 +18,13 @@
             <field name="model">res.partner.ept</field>
             <field name="arch" type="xml">
                 <form string="Partner Data">
-                    <header>
-
-                    </header>
                     <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_open_field_visit" type="object"
+                                    class="oe_stat_button" icon="fa-pencil-square-o">
+                                <field name="field_visit_count" widget="statinfo"/>
+                            </button>
+                        </div>
                         <group>
                             <group>
                                 <field name="name"/>
@@ -29,21 +32,18 @@
                             </group>
                             <group>
                                 <field name="followup_days"/>
-                                <field name="field_visit_count"/>
                             </group>
                         </group>
                     </sheet>
                 </form>
             </field>
         </record>
-
-
         <record id="view_res_partner_ept_search" model="ir.ui.view">
             <field name="name">Partner Ept Search View</field>
             <field name="model">res.partner.ept</field>
             <field name="arch" type="xml">
                 <search string="Partner ept">
-                     <field name="name"/>
+                    <field name="name"/>
                     <field name="next_visit_date"/>
                     <field name="followup_days"/>
                     <field name="field_visit_count"/>
