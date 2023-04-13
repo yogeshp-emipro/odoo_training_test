@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="field_visit_ept_sequence" model="ir.sequence">
+        <field name="name">Field Visit Ept</field>
+        <field name="code">seq.field.visit.ept</field>
+        <field name="prefix">FV-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="sale_order_ept_sequence" model="ir.sequence">
+        <field name="name">Sale Order Ept</field>
+        <field name="code">seq.sale.order.ept</field>
+        <field name="prefix">SO</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

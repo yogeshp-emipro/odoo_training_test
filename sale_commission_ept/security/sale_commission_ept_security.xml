@@ -10,7 +10,6 @@
         <field name="name">Sale Commission ept SalePerson Group</field>
         <field name="category_id" ref="sale_commission_ept_category"/>
     </record>
-    
 
     <record id="group_sale_commission_ept_salesmanager" model="res.groups">
         <field name="name">Sale Commission ept SaleManager Group</field>
