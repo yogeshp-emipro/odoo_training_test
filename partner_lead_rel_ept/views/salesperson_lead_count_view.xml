@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_saleperson_lead_count_tree" model="ir.ui.view">
+        <field name="name">SalePerson Lead Count Tree View</field>
+        <field name="model">salesperson.lead.count</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="count_pipeline"/>
+                <field name="total_revenue"/>
+                <field name="total_quotation"/>
+                <field name="total_sale_order"/>
+                <field name="total_order_amount"/>
+                <field name="percentage_conversation_amt"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_saleperson_lead_count_form" model="ir.ui.view">
+        <field name="name">SalePerson Lead Count Form View</field>
+        <field name="model">salesperson.lead.count</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <!--                        <div class="oe_button_box" name="button_box">-->
+                    <!--                            <button name="action_open_field_visit" type="object"-->
+                    <!--                                    class="oe_stat_button" icon="fa-pencil-square-o">-->
+                    <!--                                <field name="field_visit_count" widget="statinfo"/>-->
+                    <!--                            </button>-->
+                    <!--                        </div>-->
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="count_pipeline"/>
+                            <field name="total_revenue"/>
+                            <field name="total_quotation"/>
+                        </group>
+                        <group>
+                            <field name="total_sale_order"/>
+                            <field name="total_order_amount"/>
+                            <field name="percentage_conversation_amt"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_saleperson_lead_count_search" model="ir.ui.view">
+        <field name="name">SalePerson Lead Count Search View</field>
+        <field name="model">salesperson.lead.count</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="percentage_conversation_amt"/>
+                <field name="total_revenue"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="saleperson_lead_count_action" model="ir.actions.act_window">
+        <field name="name">SalePerson Lead Count Action</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">salesperson.lead.count</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_saleperson_lead_count_search"/>
+        <field name="help" type="html">
+            <p>
+                Creating the Sale Person Lead .
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="saleperson_lead_count_submenu1"
+              name=" My SalePerson Lead Count"
+              action="saleperson_lead_count_action"
+              parent="partner_lead_rel_ept_sub_menu"/>
+</odoo>

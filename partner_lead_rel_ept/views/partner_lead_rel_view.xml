@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_partner_lead_rel_tree" model="ir.ui.view">
+        <field name="name">Partner Lead Rel Tree View</field>
+        <field name="model">partner.lead.rel</field>
+        <field name="arch" type="xml">
+            <tree string="Partner lead rel">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="from_date"/>
+                <field name="to_date"/>
+                <field name="total_revenue"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_partner_lead_rel_form" model="ir.ui.view">
+        <field name="name">Partner Lead Rel Form View</field>
+        <field name="model">partner.lead.rel</field>
+        <field name="arch" type="xml">
+            <form string="Partner Lead Rel">
+                <header>
+                    <button string="Get Pipeline Details" name="get_pipeline_details" type="object"/>View Leads
+                    <button string="View Leads" name="view_leads" type="object"/>
+                </header>
+                <sheet>
+                    <!--                        <div class="oe_button_box" name="button_box">-->
+                    <!--                            <button name="action_open_field_visit" type="object"-->
+                    <!--                                    class="oe_stat_button" icon="fa-pencil-square-o">-->
+                    <!--                                <field name="field_visit_count" widget="statinfo"/>-->
+                    <!--                            </button>-->
+                    <!--                        </div>-->
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="from_date"/>
+                            <field name="to_date"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="partner_contact_ids" widget="many2many_tags"/>
+                            <field name="lead_ids" widget="many2many_tags"/>
+                            <field name="total_revenue"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Sale Person Leads">
+                            <field name="salesperson_lead_count_ids"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_partner_lead_rel_search" model="ir.ui.view">
+        <field name="name">Partner Lead Rel Search View</field>
+        <field name="model">partner.lead.rel</field>
+        <field name="arch" type="xml">
+            <search string="Partner ept">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <group>
+                    <filter string="Partner" name="filter_partner" context="{'group_by':'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="partner_lead_rel_action" model="ir.actions.act_window">
+        <field name="name">Partner Lead Rel Action</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">partner.lead.rel</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_partner_lead_rel_search"/>
+        <field name="help" type="html">
+            <p>
+                Creating the Customer .
+            </p>
+        </field>
+    </record>
+    <menuitem id="partner_lead_rel_ept_menu"
+              name="Customer Deltails"
+    />
+
+    <menuitem id="partner_lead_rel_ept_sub_menu"
+              name="Parnter Lead"
+              parent="partner_lead_rel_ept_menu"/>
+
+    <menuitem id="partner_lead_rel_ept_submenu1"
+              name="My Customer Details"
+              action="partner_lead_rel_action"
+              parent="partner_lead_rel_ept_sub_menu"/>
+
+</odoo>

@@ -220,4 +220,8 @@ class SalesCommissionEpt(models.Model):
     @api.depends('invoice_ids')
     def compute_amount_residual(self):
         for commission in self:
-            commission.amount_residual = commission.invoice_ids[0].amount_residual
+         if commission.invoice_ids:
+            for invoice in commission.invoice_ids:
+                  commission.amount_residual =invoice.amount_residual
+         else:
+             commission.amount_residual=0
