@@ -4,7 +4,7 @@
         <field name="name">Partner Lead Rel Tree View</field>
         <field name="model">partner.lead.rel</field>
         <field name="arch" type="xml">
-            <tree string="Partner lead rel">
+            <tree string="Partner lead rel" decoration-success="total_revenue>10000">
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="from_date"/>
@@ -19,16 +19,21 @@
         <field name="arch" type="xml">
             <form string="Partner Lead Rel">
                 <header>
-                    <button string="Get Pipeline Details" name="get_pipeline_details" type="object"/>View Leads
-                    <button string="View Leads" name="view_leads" type="object"/>
+                    <button string="Get Pipeline Details" name="get_pipeline_details" type="object"/>
                 </header>
                 <sheet>
-                    <!--                        <div class="oe_button_box" name="button_box">-->
-                    <!--                            <button name="action_open_field_visit" type="object"-->
-                    <!--                                    class="oe_stat_button" icon="fa-pencil-square-o">-->
-                    <!--                                <field name="field_visit_count" widget="statinfo"/>-->
-                    <!--                            </button>-->
-                    <!--                        </div>-->
+                    <div class="oe_button_box" name="button_box">
+                        <button  name="action_view_leads" type="object"
+                                class="oe_stat_button" icon="fa-pencil-square-o">
+                            <field name="lead_count" widget="statinfo"/>
+                        </button>
+
+                        <button  name="action_open_sale_order" type="object"
+                                class="oe_stat_button" icon="fa-pencil-square-o">
+                            <field name="no_sale_order" widget="statinfo"/>
+                        </button>
+
+                    </div>
                     <group>
                         <group>
                             <field name="name"/>
@@ -59,7 +64,7 @@
                 <field name="name"/>
                 <field name="partner_id"/>
                 <group>
-                    <filter string="Partner" name="filter_partner" context="{'group_by':'partner_id'}"/>
+                    <filter string="Partner" name="group_by_partner" context="{'group_by':'partner_id'}"/>
                 </group>
             </search>
         </field>
@@ -70,12 +75,30 @@
         <field name="res_model">partner.lead.rel</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_partner_lead_rel_search"/>
+        <field name="context">{'search_default_group_by_partner': 1}</field>
         <field name="help" type="html">
             <p>
                 Creating the Customer .
             </p>
         </field>
     </record>
+
+
+    <record id="view_partner_lead_rel_mssg" model="ir.ui.view">
+        <field name="name">Partner Lead Rel Mssg</field>
+        <field name="model">partner.lead.rel</field>
+        <field name="inherit_id" ref="partner_lead_rel_ept.view_partner_lead_rel_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" postion="after">
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
     <menuitem id="partner_lead_rel_ept_menu"
               name="Customer Deltails"
     />

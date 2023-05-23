@@ -22,7 +22,7 @@ class SalePersonLeadCount(models.Model):
     total_order_amount = fields.Float(string='Total Order Amount',
                                       help='total order amount of the saleperson lead count')
     percentage_conversation_amt = fields.Integer(string='Percentage Convers',
-                                                help='percentage conversation amount of the saleperson lead count')
+                                                help='percentage conversation amount from expected revenue to sales order total amount')
 
     partner_lead_rel_id = fields.Many2one(comodel_name='partner.lead.rel', string='Partner Lead',
                                           help='Lead Partner id of the  partner lead rel')
