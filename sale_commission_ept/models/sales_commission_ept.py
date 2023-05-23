@@ -173,6 +173,7 @@ class SalesCommissionEpt(models.Model):
             'context': {'form_view_ref': 'sales.commission.ept_form_readonly'},
             'target': 'main',
         }
+
     def unlink(self):
         if self.state in ['approved', 'in-payment', 'paid']:
             raise ValidationError('Warning ! Commission cannot be deleted.')
@@ -211,17 +212,18 @@ class SalesCommissionEpt(models.Model):
             form_view = [(self.env.ref('account.view_move_form').id, 'form')]
             action['views'] = form_view
             action['res_id'] = self.invoice_ids.id
-        # for commission in self:
+            # for commission in self:
             for invoice in self.invoice_ids:
-                if invoice.payment_state=='paid' and invoice.state == 'posted':
+                if invoice.payment_state == 'paid' and invoice.state == 'posted':
                     self.commission_final_paid_date = \
                         json.loads((invoice.invoice_payments_widget))['content'][-1]['date']
         return action
+
     @api.depends('invoice_ids')
     def compute_amount_residual(self):
         for commission in self:
-         if commission.invoice_ids:
-            for invoice in commission.invoice_ids:
-                  commission.amount_residual =invoice.amount_residual
-         else:
-             commission.amount_residual=0
+            if commission.invoice_ids:
+                for invoice in commission.invoice_ids:
+                    commission.amount_residual = invoice.amount_residual
+            else:
+                commission.amount_residual = 0
