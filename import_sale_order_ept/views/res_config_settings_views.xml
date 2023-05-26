@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="import_sale_ept_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.sale.ept.import</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Sale" id="sale" string="Sales" data-key="sale"
+                >
+                    <h2>Sale Order Shipping Product</h2>
+                    <div class="row mt16 o_settings_container" id="end_contract_setting">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Shipping Product</span>
+                                <div class="text-muted content-group mt16">
+                                    <span>Shipping Product</span>
+                                    <field name="shipping_product" class="text-center oe_inline"
+                                           options="{'no_open':True,'no_create':True}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!--    <record id="import_sale_ept_config_settings_action" model="ir.actions.act_window">-->
+    <!--        <field name="name">Settings</field>-->
+    <!--        <field name="type">ir.actions.act_window</field>-->
+    <!--        <field name="res_model">res.config.settings</field>-->
+    <!--        <field name="view_mode">form</field>-->
+    <!--        <field name="target">inline</field>-->
+    <!--        <field name="context">{'module' : 'sale', 'bin_size': False}</field>-->
+    <!--    </record>-->
+
+
+    <!--    <menuitem id="import_sale_ept_config_settings_menu"-->
+    <!--              name="Shipping Product"-->
+    <!--              parent="sale.menu_sale_config"-->
+    <!--              sequence="0"-->
+    <!--              action="import_sale_ept_config_settings_action"-->
+    <!--    />-->
+
+</odoo>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="import_sale_order_ept_view_tree" model="ir.ui.view">
+        <field name="name">Import Sale OrderEpt Tree View</field>
+        <field name="model">import.sale.order.ept</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="file_name"/>
+                <field name="date"/>
+            </tree>
+        </field>
+    </record>
+    <record id="import_sale_order_ept_view_form" model="ir.ui.view">
+        <field name="name">Import Sale OrderEpt Form View</field>
+        <field name="model">import.sale.order.ept</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Import Sale Order" name='import_sale_order' class="btn btn-primary" type="object"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="file_name"/>
+                            <field name="choose_file" widget="binary" string="File Upload"
+                                   filename="file_name"
+                                   placeholder="File Upload"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Log Lines">
+                            <field name="log_lines_ids" editable="bottom">
+                                <tree>
+                                    <field name="message"/>
+                                    <field name="message_type"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="import_sale_order_ept_view_search" model="ir.ui.view">
+        <field name="name">Import Sale OrderEpt Search View</field>
+        <field name="model">import.sale.order.ept</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="file_name"/>
+                <field name="date"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="import_sale_order_ept_action" model="ir.actions.act_window">
+        <field name="name">Import Sale OrderEpt Action</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">import.sale.order.ept</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="import_sale_order_ept_view_search"/>
+        <field name="help" type="html">
+            <div>
+                <h2>Importing the Sale order.</h2>
+            </div>
+        </field>
+    </record>
+
+
+    <menuitem id="import_sale_order_ept_sub_menu"
+              name="Import Sale Order"
+              parent="import_sale_order_ept_menu_root"
+              action="import_sale_order_ept_action"/>
+
+
+</odoo>

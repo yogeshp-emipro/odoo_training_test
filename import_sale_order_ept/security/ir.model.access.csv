@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_log_ept,Log Ept,model_log_ept,sales_team.group_sale_salesman,1,1,1,1
+access_log_lines_ept,Log Lines Ept,model_log_lines_ept,sales_team.group_sale_salesman,1,1,1,1
+access_import_sale_order_ept,Import Sale Order Ept,model_import_sale_order_ept,sales_team.group_sale_salesman,1,1,1,1

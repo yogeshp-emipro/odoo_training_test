@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="log_ept_sequence" model="ir.sequence">
+        <field name="name">Log Ept Sequence</field>
+        <field name="code">seq.log.ept</field>
+        <field name="prefix">LOG</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="log_ept_view_tree" model="ir.ui.view">
+        <field name="name">Log Ept Tree View</field>
+        <field name="model">log.ept</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="date"/>
+            </tree>
+        </field>
+    </record>
+    <record id="log_ept_view_form" model="ir.ui.view">
+        <field name="name">Log Ept Form View</field>
+        <field name="model">log.ept</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Log Lines">
+                            <field name="log_lines_ids">
+                                <tree>
+                                    <field name="message"/>
+                                    <field name="message_type"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="log_ept_view_search" model="ir.ui.view">
+        <field name="name">Log Ept Search View</field>
+        <field name="model">log.ept</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="date"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="log_ept_action" model="ir.actions.act_window">
+        <field name="name">Log Ept Action</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">log.ept</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="log_ept_view_search"/>
+        <field name="help" type="html">
+            <div>
+                <h2>Creating the Log</h2>
+            </div>
+        </field>
+    </record>
+    <menuitem id="import_sale_order_ept_menu_root"
+              name="Import Sale Order"/>
+
+    <menuitem id="log_ept_sub_menu"
+              name="Log"
+              parent="import_sale_order_ept_menu_root"
+              action="log_ept_action"/>
+
+
+</odoo>
