@@ -6,7 +6,8 @@
              'data/sequence.xml',
              'views/res_config_settings_views.xml',
              'views/log_ept_view.xml',
-             'views/import_sale_order_ept_view.xml']
+             'views/import_sale_order_ept_view.xml',
+             'views/log_demo_ept_view.xml']
 
 }
 #
