@@ -43,18 +43,14 @@ class ImportSaleOrderEpt(models.Model):
                     'product.pricelist'].search([('currency_id', '=', currency.id)]):
 
                     partner = self.env['res.partner'].search([('customer_partner_code', '=', row['Customer Code'])])
-
                     product = self.env['product.product'].search([('default_code', '=', row['SKU'])])
-
                     new_pricelist = self.env['product.pricelist'].search([('currency_id', '=', currency.id)], limit=1)
 
                 else:
                     if self.env['res.partner'].search([('customer_partner_code', '=', row['Customer Code'])]):
                         partner = self.env['res.partner'].search([('customer_partner_code', '=', row['Customer Code'])])
                     else:
-                        partner = self.env['res.partner'].create({'name': row['Name'], 'email': row['Email'],
-                                                                  'customer_partner_code': row[
-                                                                      'Customer Code']})  # creating the partner if partner record is not there
+                        partner = self.env['res.partner'].create({'name': row['Name'], 'email': row['Email'],'customer_partner_code': row['Customer Code']})  # creating the partner if partner record is not there
 
                     if self.env['product.product'].search([('default_code', '=', row['SKU'])]):
                         product = self.env['product.product'].search([('default_code', '=', row['SKU'])])
@@ -63,16 +59,19 @@ class ImportSaleOrderEpt(models.Model):
                             {'name': row['Product Description'], 'default_code': row['SKU'],
                              'list_price': row['Cost Per Unit'], })
                     # creating the product if product with that sku is not present in product template
-
                     # here we have taken if and else many time for product,partner,pricelist bcz it may possible that some time only product,partner,pricelist is present and few of their combination is not present.
-                    pricelist = self.env['product.pricelist'].search([('currency_id', '=', currency.id)])
 
+                    pricelist = self.env['product.pricelist'].search([('currency_id', '=', currency.id)])
                     new_pricelist = pricelist if pricelist else self.env[
                         'product.pricelist'].create(
                         {'name': currency.name + 'pricelist', 'currency_id': currency.id})
 
                 order_lines = Command.create(
-                    {'product_id': product.id, 'cost_price': row['Cost Per Unit']})
+                    {'product_id': product.id, 'product_uom_qty':row['Quantity'],'cost_price': row['Cost Per Unit']})
+
+                state = 'sale' if int(row['Quantity'])>0 else 'draft'
+                if state=='draft':
+                    order_lines=self.env['sale.order.line']
 
                 timestamp_str = row['Order Date']
                 date = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M:%S+00:00')
@@ -83,6 +82,7 @@ class ImportSaleOrderEpt(models.Model):
                                                'partner_invoice_id': partner.id,
                                                'partner_shipping_id': partner.id,
                                                'pricelist_id': new_pricelist.id,
+                                               'state':state,
                                                'amount_total':row['Price'],
                                                'order_line': [order_lines]})
 
