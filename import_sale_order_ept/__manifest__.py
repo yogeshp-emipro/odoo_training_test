@@ -10,5 +10,4 @@
              'views/log_demo_ept_view.xml']
 
 }
-#
-# sequence.xml
+
