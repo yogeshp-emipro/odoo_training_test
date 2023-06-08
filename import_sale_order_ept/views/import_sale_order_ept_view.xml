@@ -19,6 +19,12 @@
                     <button string="Import Sale Order" name='import_sale_order' class="btn btn-primary" type="object"/>
                 </header>
                 <sheet>
+                      <div class="oe_button_box" name="button_box">
+                        <button  name="action_view_logs" type="object"
+                                class="oe_stat_button" icon="fa-pencil-square-o">
+                            <field name="log_ids" widget="statinfo"/>
+                        </button>
+                     </div>
                     <group>
                         <group>
                             <field name="file_name"/>
@@ -30,16 +36,12 @@
                             <field name="date"/>
                         </group>
                     </group>
-                    <notebook>
-                        <page string="Log Lines">
-                            <field name="log_lines_ids" editable="bottom">
-                                <tree>
-                                    <field name="message"/>
-                                    <field name="message_type"/>
-                                </tree>
-                            </field>
-                        </page>
-                    </notebook>
+<!--                    <notebook>-->
+<!--                        <page string="Log Lines">-->
+<!--                            <field name="log_ids" />-->
+
+<!--                        </page>-->
+<!--                    </notebook>-->
                 </sheet>
             </form>
         </field>

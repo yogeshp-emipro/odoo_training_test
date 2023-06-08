@@ -10,12 +10,19 @@
             </tree>
         </field>
     </record>
+
     <record id="log_ept_view_form" model="ir.ui.view">
         <field name="name">Log Ept Form View</field>
         <field name="model">log.ept</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                     <div class="oe_button_box" name="button_box">
+                        <button  name="action_view_orders" type="object"
+                                class="oe_stat_button" icon="fa-pencil-square-o">
+                            <field name="order_ids" widget="statinfo"/>
+                        </button>
+                     </div>
                     <group>
                         <group>
                             <field name="name"/>

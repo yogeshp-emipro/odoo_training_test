@@ -10,5 +10,4 @@ class LogLinesEpt(models.Model):
                                     selection=[('success', 'Success'), ('failure', 'Failure'), ('warning', 'Warning')],
                                     help='message type of the log')
     log_id = fields.Many2one(comodel_name='log.ept', string='Log', help='Log id of the log lines ept')
-    import_sale_order_ept_id = fields.Many2one(comodel_name='import.sale.order.ept', string='Log',
-                                               help='Log id of the log lines ept')
+
