@@ -15,8 +15,8 @@ class ImportSaleOrderEpt(models.Model):
     choose_file = fields.Binary(string="Select File")
     date = fields.Date(string='Date', default=date.today(), help='date of the import sale order ept')
     log_ids = fields.One2many(comodel_name='log.ept', inverse_name='import_sale_order_ept_id',
-                              string='Log Lines',
-                              help='log lines ids  of the import sale order ept')
+                              string='Log',
+                              help='log ids  of the import sale order ept')
 
     def import_sale_order(self):
         try:
